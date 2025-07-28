@@ -34,6 +34,8 @@
   <script>
     const url = new URLSearchParams(window.location.search).get('file');
     const pdfViewer = document.getElementById('pdfViewer');
+    const viewerContainer = document.getElementById('viewerContainer');
+    const pageCanvases = []; // Array to track canvas elements by page
 
     pdfjsLib.GlobalWorkerOptions.workerSrc =
       'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
@@ -49,8 +51,17 @@
         canvas.width = viewport.width;
         await page.render({ canvasContext: context, viewport }).promise;
         pdfViewer.appendChild(canvas);
+        pageCanvases.push(canvas);
       }
     };
+
+    // Function to scroll to a specific page
+    function scrollToPage(pageNumber) {
+      const canvas = pageCanvases[pageNumber - 1];
+      if (canvas) {
+        canvas.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
 
     renderPDF();
   </script>
