@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>PDF Viewer</title>
+  <style>
+    html,
+    body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    #viewerContainer {
+      width: 100vw;
+      height: 100vh;
+      overflow: auto;
+    }
+
+    #pdfViewer .page {
+      margin: 10px auto;
+      box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+</head>
+
+<body>
+  <div id="viewerContainer">
+    <div id="pdfViewer" class="pdfViewer"></div>
+  </div>
+
+  <script>
+    const url = new URLSearchParams(window.location.search).get('file');
+    const pdfViewer = document.getElementById('pdfViewer');
+
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+
+    const renderPDF = async () => {
+      const pdf = await pdfjsLib.getDocument(url).promise;
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale: 1.5 });
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+        await page.render({ canvasContext: context, viewport }).promise;
+        pdfViewer.appendChild(canvas);
+      }
+    };
+
+    renderPDF();
+  </script>
+</body>
+
+</html>
